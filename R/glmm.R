@@ -941,7 +941,7 @@ varScore <- function(sigma, random.levels, indiv.u, mu, y, r, curr_u, curr_hess,
         svec[i,] <- (-0.5 * matrix.trace(G_inv %*% G_partials[[i]])) + (0.5 * t(curr_u) %*% G_inv %*% G_partials[[i]] %*% G_inv %*% curr_u)
         # svec[i, ] <- (1/curr_sigma[i, ]) + ((4*sum(indiv.u[[i.rand]]**2))/(curr_sigma[i,]**3))
     }
-    return(svec)
+    return(-svec)
 }
 
 
