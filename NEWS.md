@@ -1,3 +1,8 @@
+# 1.3.0 (2021-12-17)
+- Patch bug in findNhoodGroupMarkers that resulted in misordering of DGE results
+- Vignette typographical mistakes fixed
+- Introduce graph-only nhood definition and spatial FDR (negates need to compute pair-wise distances over cells in each neighbourhood). Consequently the workflow speed-up is ~x25
+
 # 1.1.0 (2021-10-12)
 - Fix bug in testNhoods to use user-specific reduced dimensions
 - Vignettes now include set rownames() to avoid confusion
