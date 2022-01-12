@@ -457,6 +457,21 @@ $$\frac{1}{r} = \frac{S^2 + \frac{1}{n} \sum_{i=1}^n \mu_i(1 + \frac{1}{n} \sum_
 
 Et voila!
 
+## Variance partial derivatives
+
+For the marginal quasi-likelihood (and possibly the full loglihood approach?), we need the partial derivatives of the total variance w.r.t. each of the 
+variance components. The first partial derivatives are shown below:
+
+$$V = V_{0} + exp(ZGZ^T) \\  V_{0}= \underset{n \times n}{diag} \frac{\mu_i^2}{r} \mu_i \\ \frac{\partial{V}}{\partial \sigma_j} = \Lambda + 2\sigma_j exp(ZGZ^T)A \\ \Lambda = \underset{n \times n}{diag} \ CDZs^T \\ A = Z_{\cdot j} Z^T_{j \cdot} \\ C = \underset{n \times n}{diag} \frac{2\mu_i}{r} - 1 \\ D = \underset{n \times n}{diag} \ \mu_i \\ s = [0 \cdots \frac{\partial b_j}{\partial \sigma_j} \cdots 0] \\ \frac{\partial u_j}{\partial \sigma_j} = \bigg(\frac{1}{q-1} \sum_{l=1}^q 2u_{lj}  \bigg)^{-1}$$
+
+We also need the elements of the Hessian $H(\sigma)$ that include the second partial derivatives:
+
+$$ \frac{\partial^2 V}{\partial \sigma_i \partial \sigma_j} = PQ +MN + O + 2 exp(ZGZ^T)A[I + 2\sigma_j^2 A ] \\ P = \underset{n \times n}{diag} \ RDZs^T \\ R = \frac{2}{r} I_{n\times n} \\ Q=\underset{n \times n}{diag} \ DZs^T \\ M = \underset{n \times n}{diag} \ CDZs^T \\ N = \underset{n \times n}{diag} \ Zs^T \\ O = \underset{n \times n}{diag} \ CDZw^T \\ w = [0 \cdots \frac{q-1}{2q} \cdots 0] $$
+
+Because I have ignored the interaction terms (random slopes), when $i \neq j$ then these elements are 0.
+
+
+
 <!---
 
 ## Joint parameter estimation
