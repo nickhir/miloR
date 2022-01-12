@@ -20,7 +20,7 @@
 #' matrix of vertices X reduced dimensions with \code{rownames()} set to correspond to the cellIDs.
 #' @param refined A logical scalar that determines the sampling behavior, default=TRUE implements a refined sampling scheme,
 #' specified by the refinement_scheme argument.
-#' @refinement_scheme refinement_scheme A character scalar that defines the sampling scheme, either "reduced_dim" or "graph".
+#' @param refinement_scheme A character scalar that defines the sampling scheme, either "reduced_dim" or "graph".
 #' Default is "reduced_dim".
 #'
 #' @details
@@ -76,7 +76,6 @@ makeNhoods <- function(x, prop=0.1, k=21, d=30, refined=TRUE, reduced_dims="PCA"
                 stop("Rownames of reduced dimensions do not match cell IDs")
             }
         }
-
     } else if(is(x, "igraph")){
 
         if(isTRUE(refined) & refinement_scheme == "reduced_dim" & !is.matrix(reduced_dims)) {
