@@ -59,11 +59,6 @@ runGLMM <- function(X, Z, y, init.theta=NULL, crossed=FALSE, random.levels=NULL,
         rownames(curr_u) <- colnames(full.Z)
     }
 
-    # initialise using solutions of variance components from ANOVA
-    # init.sigma <- matrix(estimateInitialSigmas(y, Z), ncol=1)
-    # rownames(init.sigma) <- colnames(Z)
-    # curr_sigma <- init.sigma
-
     # compute sample variances of the us
     init.sigma <- matrix(unlist(lapply(mapUtoIndiv(full.Z, curr_u, random.levels=random.levels),
                                  FUN=function(Bj){
@@ -162,24 +157,7 @@ runGLMM <- function(X, Z, y, init.theta=NULL, crossed=FALSE, random.levels=NULL,
                             G_inv=G_inv, G_partials=Gu_partials)
         # print(sigma_bfgs)
         sigma_update <- matrix(sigma_bfgs$par, ncol=1)
-
-        # ## Using Mike's appallingly shonky ANOVA-like approach (MASALA)
-        # ## u estimates are on the model scale, sigmas are on the data scale
-        # sigma_update <- masala(X=X, curr_beta=curr_beta, y_bar=y_bar, y=y, full.Z=full.Z, curr_u=curr_u, random.levels=random.levels)
-
-        # # compute sample variances of the us
-        # sigma_update <- matrix(unlist(lapply(mapUtoIndiv(full.Z, curr_u, random.levels=random.levels),
-        #                                    FUN=function(Bj){
-        #                                        (1/(length(Bj)-1)) * crossprod(Bj, Bj)
-        #                                    })), ncol=1)
-
         rownames(sigma_update) <- colnames(Z)
-
-        # need to check for negative variance components <- might be due to small samples sizes and instability
-        # if(any(sigma_update < 0)){
-        #     warning("Negative variance components detected - setting to 0")
-        #     sigma_update[sigma_update < 0, ] <- 0
-        # }
 
         sigma_diff <- sigma_update - curr_sigma
         curr_sigma <- sigma_update
