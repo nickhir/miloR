@@ -89,7 +89,7 @@ runGLMM <- function(X, Z, y, init.theta=NULL, crossed=FALSE, random.levels=NULL,
 
     # use y_bar as the sample mean and s_hat as the sample variance
     y_bar <- mean(y)
-    s_hat <- var(log(y+1))
+    s_hat <- var(y)
     new.r <- computeDispersion(mu.vec, s_hat) # methods of moments based estimate <- wrong!!
 
     max.hit <- glmm.control[["max.iter"]]
@@ -123,8 +123,8 @@ runGLMM <- function(X, Z, y, init.theta=NULL, crossed=FALSE, random.levels=NULL,
     while(meet.conditions){
         D_inv <- computeDinv(mu.vec)
         V0 <- computeV0(mu=mu.vec, r=new.r)
-        V <- V0 + (D_inv %*% full.Z %*% curr_G %*% t(full.Z) %*% D_inv)
-        V_inv <- computeVinv(V0=V0, D_inv=D_inv, Z=full.Z, G=curr_G)
+        V <- V0 + exp(full.Z %*% curr_G %*% t(full.Z))
+        V_inv <- computeVinv(V0=V0, Z=full.Z, G=curr_G)
         B <- computeB(y=y, r=new.r, mu=mu.vec)
         W <- computeW(mu=mu.vec, r=new.r, Z=full.Z, G=curr_G, D_inv=D_inv)
         Q <- computeQ(mu=mu.vec, r=new.r)
@@ -675,7 +675,7 @@ computeW <- function(mu, r, Z=full.Z, G=curr_G, D_inv=D_inv){
     W0 <- diag(length(mu))
     diag(W0) <- w
 
-    W <- W0 + (Z %*% G %*% t(Z) %*% D_inv) + (D_inv %*% Z %*% G %*% t(Z))
+    W <- W0 #+ (Z %*% G %*% t(Z) %*% D_inv) + (D_inv %*% Z %*% G %*% t(Z))
     return(W)
 }
 
@@ -736,11 +736,11 @@ computeV0 <- function(mu, r){
 }
 
 
-computeVinv <- function(V0, D_inv, Z, G){
+computeVinv <- function(V0, Z, G){
     # Compute V^-1
     # need to check that V is not singular
 
-    V <- V0 + (D_inv %*% Z %*% G %*% t(Z) %*% D_inv)
+    V <- V0 + exp(Z %*% G %*% t(Z))
 
     v.det <- det(V)
     v.kappa <- tryCatch({
