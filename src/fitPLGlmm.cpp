@@ -176,7 +176,14 @@ List fitPLGlmm(const arma::mat& Z, const arma::mat& X, arma::vec muvec,
         }
 
         if(_any_inf){
-            stop("Infinite parameter estimates - consider an alternative model");
+            muvec.brief_print("muvec");
+            List this_conv(5);
+            this_conv = List::create(_["ThetaDiff"]=theta_diff, _["SigmaDiff"]=sigma_diff, _["beta"]=curr_beta,
+                                     _["u"]=curr_u, _["sigma"]=curr_sigma);
+            conv_list(iters) = this_conv;
+
+            break;
+            //stop("Infinite parameter estimates - consider an alternative model");
         }
 
         iters++;
@@ -188,14 +195,14 @@ List fitPLGlmm(const arma::mat& Z, const arma::mat& X, arma::vec muvec,
         _siconv = all(sigma_diff < theta_conv);
 
         bool _ithit = false;
-        _ithit = iters > maxit;
+        _ithit = iters >= maxit;
 
         meet_cond = ((_thconv && _siconv) || _ithit);
         converged = _thconv && _siconv;
         List this_conv(5);
         this_conv = List::create(_["ThetaDiff"]=theta_diff, _["SigmaDiff"]=sigma_diff, _["beta"]=curr_beta,
                                  _["u"]=curr_u, _["sigma"]=curr_sigma);
-        conv_list(iters-1) = this_conv;
+        conv_list(iters) = this_conv;
     }
 
     arma::vec se(computeSE(m, stot, coeff_mat));

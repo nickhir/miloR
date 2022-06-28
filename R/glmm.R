@@ -68,8 +68,12 @@ fitGLMM <- function(X, Z, y, offsets, init.theta=NULL, Kin=NULL,
         rownames(curr_sigma) <- colnames(Z)
 
         ## add the genetic components
-        ## augment Z with I
-        geno.I <- diag(nrow(full.Z))
+        ## augment Z with R
+        kin.svd <- svd(Kin)
+        kin.d <- matrix(0L, ncol=ncol(Kin), nrow=nrow(Kin))
+        diag(kin.d) <- sqrt(kin.svd$d)
+
+        geno.I <- kin.svd$u %*% kin.d
         colnames(geno.I) <- paste0("CovarMat", seq_len(ncol(geno.I)))
         full.Z <- do.call(cbind, list(full.Z, geno.I))
 
@@ -93,7 +97,12 @@ fitGLMM <- function(X, Z, y, offsets, init.theta=NULL, Kin=NULL,
             stop("Input covariance matrix is not square: ", nrow(Kin), "x", ncol(Kin))
         }
 
-        full.Z <- initializeFullZ(Z, cluster_levels=random.levels)
+        kin.svd <- svd(Kin)
+        kin.d <- matrix(0L, ncol=ncol(Kin), nrow=nrow(Kin))
+        diag(kin.d) <- sqrt(kin.svd$d)
+
+        full.Z <- kin.svd$u %*% kin.d
+        # full.Z <- initializeFullZ(Z, cluster_levels=random.levels)
         # should this be the matrix R?
         colnames(full.Z) <- paste0(names(random.levels), seq_len(ncol(full.Z)))
 
@@ -109,10 +118,6 @@ fitGLMM <- function(X, Z, y, offsets, init.theta=NULL, Kin=NULL,
         curr_G <- initialiseG(cluster_levels=random.levels, sigmas=curr_sigma, Kin=Kin)
     } else if(is.null(Kin)){
         # create full Z with expanded random effect levels
-
-
-
-
         full.Z <- initializeFullZ(Z=Z, cluster_levels=random.levels)
 
         # random value initiation from runif
@@ -165,18 +170,19 @@ fitGLMM <- function(X, Z, y, offsets, init.theta=NULL, Kin=NULL,
     curr_u <- curr_u[, 1]
     curr_theta <- curr_theta[, 1]
 
-    if(is.null(Kin)){
-        final.list <- fitPLGlmm(Z=full.Z, X=X, muvec=mu.vec, offsets=offsets, curr_beta=curr_beta,
-                                curr_theta=curr_theta, curr_u=curr_u, curr_sigma=curr_sigma,
-                                curr_G=as.matrix(curr_G), y=y, u_indices=u_indices, theta_conv=theta.conv, rlevels=random.levels,
-                                curr_disp=dispersion, REML=TRUE, maxit=max.hit)
-    } else{
-        final.list <- fitGeneticPLGlmm(Z=full.Z, X=X, K=Kin, offsets=offsets,
-                                       muvec=mu.vec, curr_beta=curr_beta,
-                                       curr_theta=curr_theta, curr_u=curr_u, curr_sigma=curr_sigma,
-                                       curr_G=curr_G, y=y, u_indices=u_indices, theta_conv=theta.conv, rlevels=random.levels,
-                                       curr_disp=dispersion, REML=TRUE, maxit=max.hit)
-    }
+    # if(is.null(Kin)){
+    final.list <- fitPLGlmm(Z=full.Z, X=X, muvec=mu.vec, offsets=offsets, curr_beta=curr_beta,
+                            curr_theta=curr_theta, curr_u=curr_u, curr_sigma=curr_sigma,
+                            curr_G=as.matrix(curr_G), y=y, u_indices=u_indices, theta_conv=theta.conv, rlevels=random.levels,
+                            curr_disp=dispersion, REML=TRUE, maxit=max.hit)
+    final.list[["Z"]] <- full.Z
+    # } else{
+    #     final.list <- fitGeneticPLGlmm(Z=full.Z, X=X, K=Kin, offsets=offsets,
+    #                                    muvec=mu.vec, curr_beta=curr_beta,
+    #                                    curr_theta=curr_theta, curr_u=curr_u, curr_sigma=curr_sigma,
+    #                                    curr_G=curr_G, y=y, u_indices=u_indices, theta_conv=theta.conv, rlevels=random.levels,
+    #                                    curr_disp=dispersion, REML=TRUE, maxit=max.hit)
+    # }
 
     # if(isFALSE(final.list$converged)){
     #     warning("Model has not converged after ", final.list$Iters,

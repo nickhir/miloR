@@ -177,7 +177,7 @@ List fitGeneticPLGlmm(const arma::mat& Z, const arma::mat& X, const arma::mat& K
         _siconv = all(sigma_diff < theta_conv);
 
         bool _ithit = false;
-        _ithit = iters > maxit;
+        _ithit = iters >= maxit;
 
         meet_cond = ((_thconv && _siconv) || _ithit);
         converged = _thconv && _siconv;
